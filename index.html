@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SagaAnalytics | پلتفرم هوش مصنوعی تحلیل سینمایی و ساختار داستان</title>
+    <!-- Tailwind CSS for utility styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            gold: '#D4AF37',
+                            cyan: '#06B6D4',
+                            purple: '#8B5CF6',
+                            rose: '#F43F5E',
+                            darkBg: '#0A0A0F',
+                            cardBg: 'rgba(20, 20, 30, 0.6)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Vazirmatn', 'Tahoma', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Vazirmatn -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100..900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for cinematic & modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for beautiful cinematic charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            background-color: #050508;
+            color: #E2E8F0;
+            font-family: 'Vazirmatn', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Standard */
+        .glass-panel {
+            background: rgba(15, 15, 25, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+            transform: translateY(-2px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Cinematic Neon Glows */
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+        .glow-purple {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+        }
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Webkit scrollbar customized for dynamic sci-fi look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0F;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27273F;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06B6D4;
+        }
+
+        /* Ambient Stars Background Animation */
+        #stars-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Ambient glowing dots */
+        .pulse-dot {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.4; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.4; }
+        }
+
+        .active-timeline-btn {
+            background-color: rgba(6, 182, 212, 0.2);
+            border-color: rgba(6, 182, 212, 0.4);
+            color: #06B6D4;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- Ambient Starfield Canvas -->
+    <canvas id="stars-canvas"></canvas>
+
+    <!-- Glowing futuristic gradients in background -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-cyan-900/10 rounded-full filter blur-[120px] pointer-events-none z-0"></div>
+    <div class="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-900/10 rounded-full filter blur-[150px] pointer-events-none z-0"></div>
+    <div class="absolute bottom-10 left-10 w-80 h-80 bg-rose-900/10 rounded-full filter blur-[100px] pointer-events-none z-0"></div>
+
+    <!-- MAIN HEADER & NAVIGATION -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg glow-cyan">
+                S
+            </div>
+            <div>
+                <span class="text-xl font-black bg-gradient-to-l from-white via-slate-200 to-cyan-400 bg-clip-text text-transparent">SAGA</span>
+                <span class="text-xs text-cyan-400 block tracking-widest uppercase -mt-1 font-bold">ANALYTICS</span>
+            </div>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a href="#hero" class="hover:text-cyan-400 transition-colors">خانه</a>
+            <a href="#features" class="hover:text-cyan-400 transition-colors">ویژگی‌های هوش مصنوعی</a>
+            <a href="#dashboard" class="hover:text-cyan-400 transition-colors">میزکار جامع تحلیلی</a>
+            <a href="#showcase" class="hover:text-cyan-400 transition-colors">نمونه‌های موفق</a>
+        </nav>
+
+        <div class="flex items-center gap-4">
+            <button onclick="scrollToElement('dashboard')" class="px-5 py-2.5 text-xs font-semibold rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>ورود به داشبورد</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative z-10 min-h-[90vh] flex flex-col justify-center items-center text-center px-6 py-20 max-w-6xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border-white/10 text-xs text-cyan-300 mb-8 animate-bounce">
+            <span class="w-2 h-2 rounded-full bg-cyan-400 pulse-dot"></span>
+            <span>نسخه جامع ۲.۵ (Saga-2.5-Preview) مجهز به موتور زنده هوش مصنوعی Gemini</span>
+        </div>
+
+        <h1 class="text-4xl md:text-7xl font-extrabold text-white tracking-tight leading-tight md:leading-snug mb-6 max-w-4xl">
+            استخراج ژنوم خلاقیت با <br>
+            <span class="bg-gradient-to-l from-cyan-400 via-purple-400 to-amber-300 bg-clip-text text-transparent">هوش مصنوعی تحلیل سناریو</span>
+        </h1>
+
+        <p class="text-slate-400 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
+            ساگا‌آنالیتیکس با بررسی عمیق ساختاری، مدل‌سازی روابط، و شبیه‌سازی‌های کیفی بر بستر معتبرترین نظریه‌های روایت‌شناسی جهانی، ریسک تولیدهای سینمایی را به حداقل می‌رساند.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+            <button onclick="scrollToElement('dashboard')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-l from-cyan-500 to-purple-600 text-white font-bold hover:opacity-90 transition-all shadow-xl shadow-cyan-500/20 flex items-center justify-center gap-3">
+                <span>کاوش در داشبورد جامع یکپارچه</span>
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <button onclick="openDemoUploadModal()" class="w-full sm:w-auto px-8 py-4 rounded-xl glass-panel text-slate-200 font-bold hover:bg-white/5 transition-all flex items-center justify-center gap-3">
+                <i class="fa-solid fa-upload text-cyan-400"></i>
+                <span>آپلود فیلمنامه جدید</span>
+            </button>
+        </div>
+
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer opacity-70 hover:opacity-100 transition-opacity" onclick="scrollToElement('features')">
+            <span class="text-xs tracking-widest text-slate-400 uppercase">ویژگی‌های کلیدی</span>
+            <i class="fa-solid fa-chevron-down text-cyan-400 animate-bounce"></i>
+        </div>
+    </section>
+
+    <!-- AI FEATURES SECTION -->
+    <section id="features" class="relative z-10 py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
+        <div class="text-center mb-16">
+            <span class="text-cyan-400 font-bold text-xs uppercase tracking-widest block mb-2">ابعاد تحلیل هوشمند</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white">قابلیت‌های موتور پردازش عمیق ساگا</h2>
+            <p class="text-slate-400 max-w-xl mx-auto mt-4 text-sm leading-relaxed">سیستم ما سناریو را به صدها متغیر کمی و کیفی تبدیل کرده و با بیش از ۵۰,۰۰۰ اثر موفق تاریخ مقایسه می‌کند.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Feature 1 -->
+            <div class="glass-panel glass-panel-hover p-6 rounded-2xl transition-all">
+                <div class="w-12 h-12 rounded-xl bg-cyan-950/50 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl mb-6">
+                    <i class="fa-solid fa-sitemap"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100 mb-2">تحلیل ساختار روایت</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">تحلیل ریتم و انطباق بر مدل‌های سه‌پرده‌ای، هرم فریتاگ و سفر قهرمان جوزف کمبل.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="glass-panel glass-panel-hover p-6 rounded-2xl transition-all">
+                <div class="w-12 h-12 rounded-xl bg-purple-950/50 border border-purple-500/30 flex items-center justify-center text-purple-400 text-xl mb-6">
+                    <i class="fa-solid fa-timeline"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100 mb-2">استخراج خودکار خطوط زمانی</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">رهگیری پیرنگ‌های فرعی، فلش‌بک‌ها و پیوستگی زمانی دیالوگ‌ها به صورت کاملاً تفکیک‌شده.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="glass-panel glass-panel-hover p-6 rounded-2xl transition-all">
+                <div class="w-12 h-12 rounded-xl bg-pink-950/50 border border-pink-500/30 flex items-center justify-center text-pink-400 text-xl mb-6">
+                    <i class="fa-solid fa-circle-nodes"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100 mb-2">نقشه تعاملی روابط</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">شناسایی هوشمند چگالی دیالوگ‌ها و تراز احساسی میان کاراکترهای اصلی و فرعی داستان.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="glass-panel glass-panel-hover p-6 rounded-2xl transition-all">
+                <div class="w-12 h-12 rounded-xl bg-amber-950/50 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xl mb-6">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-100 mb-2">تطبیق تئوری‌های سینمایی</h3>
+                <p class="text-slate-400 text-xs leading-relaxed">ارزیابی ساختار پیرنگ با متدولوژی‌های معتبر آکادمیک سینمایی جهان.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE DASHBOARD SECTION -->
+    <section id="dashboard" class="relative z-10 py-24 px-4 md:px-12 bg-slate-950/40 border-t border-white/5">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Dashboard Header -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 mb-12">
+                <div>
+                    <div class="flex items-center gap-2 text-cyan-400 text-xs font-bold uppercase mb-2">
+                        <i class="fa-solid fa-circle pulse-dot"></i>
+                        <span>داشبورد جامع و یکپارچه فعال</span>
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white">میزکار تحلیل سناریو: <span class="text-cyan-400">«ارباب حلقه‌ها (سه‌گانه حماسی)»</span></h2>
+                    <p class="text-slate-400 text-xs mt-2">نوع اثر: رمان کلاسیک / اقتباس سینمایی حماسی | وضعیت پردازش: هوش مصنوعی فعال و هماهنگ</p>
+                </div>
+            </div>
+
+            <!-- UNIFIED CONTENT SPACE (No Tabs, Single Stream Flow) -->
+            <div class="space-y-8">
+                
+                <!-- ROW 1: Timelines & Narrative Curve Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Parallel Timelines -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-timeline text-cyan-400"></i>
+                                <span>خطوط زمانی و ریتم پیرنگ موازی سه‌گانه حماسی</span>
+                            </h3>
+                            <span class="text-[10px] text-cyan-400 bg-cyan-950/60 px-2 py-1 rounded border border-cyan-500/30">تحلیل همزمانی</span>
+                        </div>
+
+                        <!-- Parallel Timelines Visual representation -->
+                        <div class="space-y-6 my-4">
+                            <!-- Timeline A -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-cyan-300 font-semibold">پیرنگ فرودو و سام (ماموریت انهدام حلقه یگانه در کوه نابودی)</span>
+                                    <span class="text-slate-500">تراکم دیالوگ: ۸۲٪</span>
+                                </div>
+                                <div class="h-4 bg-slate-900 rounded-full overflow-hidden flex p-0.5 border border-white/5">
+                                    <div class="h-full bg-gradient-to-r from-cyan-600 to-cyan-400 rounded-full" style="width: 35%"></div>
+                                    <div class="h-full bg-transparent" style="width: 5%"></div>
+                                    <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style="width: 30%"></div>
+                                    <div class="h-full bg-transparent" style="width: 5%"></div>
+                                    <div class="h-full bg-gradient-to-r from-blue-500 to-cyan-300 rounded-full" style="width: 25%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline B -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-purple-300 font-semibold">پیرنگ آراگورن و جنگ بزرگ (بازگشت پادشاه و دفاع از دژهای منس تریت و گودی هلم)</span>
+                                    <span class="text-slate-500">تراکم دیالوگ: ۵۵٪</span>
+                                </div>
+                                <div class="h-4 bg-slate-900 rounded-full overflow-hidden flex p-0.5 border border-white/5">
+                                    <div class="h-full bg-transparent" style="width: 10%"></div>
+                                    <div class="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full" style="width: 40%"></div>
+                                    <div class="h-full bg-transparent" style="width: 15%"></div>
+                                    <div class="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Timeline C -->
+                            <div>
+                                <div class="flex justify-between text-xs mb-2">
+                                    <span class="text-amber-300 font-semibold">پیرنگ گاندالف و جادوگران (تقابل با سارومان و مدیریت دفاع استراتژیک از سرزمین میانه)</span>
+                                    <span class="text-slate-500">تراکم دیالوگ: ۴۱٪</span>
+                                </div>
+                                <div class="h-4 bg-slate-900 rounded-full overflow-hidden flex p-0.5 border border-white/5">
+                                    <div class="h-full bg-transparent" style="width: 20%"></div>
+                                    <div class="h-full bg-gradient-to-r from-amber-600 to-orange-400 rounded-full" style="width: 35%"></div>
+                                    <div class="h-full bg-transparent" style="width: 10%"></div>
+                                    <div class="h-full bg-gradient-to-r from-orange-400 to-amber-300 rounded-full" style="width: 35%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Narrative Milestones -->
+                        <div class="grid grid-cols-4 gap-2 pt-4 border-t border-white/5 text-center text-[10px] text-slate-400">
+                            <div>
+                                <span class="block text-slate-500">بخش اول: یاران حلقه</span>
+                                <span class="text-cyan-400 font-bold block mt-1">تجمع در ریوندل</span>
+                                <span class="text-slate-400">تشکیل یاران نه گانه</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-500">بخش دوم: دو برج</span>
+                                <span class="text-purple-400 font-bold block mt-1">نبرد گودی هلم</span>
+                                <span class="text-slate-400">تقسیم یاران به ۳ مسیر</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-500">بخش سوم: بازگشت شاه</span>
+                                <span class="text-amber-400 font-bold block mt-1">نبرد پله‌نور</span>
+                                <span class="text-slate-400">دفاع نهایی از منس تریت</span>
+                            </div>
+                            <div>
+                                <span class="block text-slate-500">اوج نهایی حماسه</span>
+                                <span class="text-rose-400 font-bold block mt-1">کوه نابودی</span>
+                                <span class="text-slate-400">سقوط سائورون و حلقه</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Narrative Quality Radar Chart -->
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-slate-100 mb-6 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie text-cyan-400"></i>
+                            <span>تطبیق روایت‌شناسی جهانی</span>
+                        </h3>
+                        <div class="relative w-full h-56 flex items-center justify-center">
+                            <canvas id="academicRadarChart"></canvas>
+                        </div>
+                        <p class="text-[11px] text-center text-slate-400 mt-4 leading-relaxed">
+                            انطباق فوق‌العاده بالایی (۹۸٪) با مدل <strong class="text-amber-400">«سفر قهرمان»</strong> و روانشناسی اسطوره‌ای تالکین وجود دارد. ریتم اثر در نسخه ممتد کاملاً تراز است.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ROW 2: STORYLINE PATHS & PLOT DIAGRAM GENERATOR -->
+                <div class="glass-panel p-6 rounded-2xl border border-cyan-500/20">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-bezier-curve text-cyan-400"></i>
+                                <span>ابزار شبیه‌ساز مسیرهای داستانی (Storylines) و نمودار هرم پیرنگ (Plot Diagram)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">ترسیم تعاملی تلاقی شخصیت‌ها در جغرافیا و ساختار نمایشی هرم دراماتیک فریتاگ در شاهکار تالکین.</p>
+                        </div>
+                        <span class="text-[10px] text-cyan-400 bg-cyan-950/60 px-3 py-1.5 rounded-lg border border-cyan-500/30">تحلیل بصری زنده</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Storyline Paths Canvas -->
+                        <div class="bg-slate-950/70 border border-white/5 rounded-2xl p-4">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="text-xs font-bold text-slate-200">نمودار مسیر کاراکترها (Storyline Track)</span>
+                                <span class="text-[10px] text-slate-500">همگرایی و واگرایی مسیرها</span>
+                            </div>
+                            <div class="relative w-full h-72">
+                                <canvas id="storylineCanvas" class="w-full h-full cursor-crosshair rounded-xl"></canvas>
+                            </div>
+                            <p class="text-[10px] text-slate-400 mt-2 text-center">خطوط نشان‌دهنده مسیر فیزیکی فرودو، سام، آراگورن، گاندالف و لگولاس در نقشه هستند که در موریا همگرا و در پارث‌گالن واگرا می‌شوند.</p>
+                        </div>
+
+                        <!-- Plot Diagram Pyramid (Freytag's Pyramid) -->
+                        <div class="bg-slate-950/70 border border-white/5 rounded-2xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-slate-200">هرم دراماتیک فریتاگ (Freytag's Plot Diagram)</span>
+                                    <span class="text-[10px] text-amber-400">برای مشاهده روی گره‌ها کلیک کنید</span>
+                                </div>
+                                <div class="relative w-full h-44 flex items-center justify-center">
+                                    <svg viewBox="0 0 400 200" class="w-full h-full">
+                                        <!-- Axis lines -->
+                                        <line x1="20" y1="180" x2="380" y2="180" stroke="rgba(255,255,255,0.1)" stroke-width="2" />
+                                        <!-- Pyramid lines -->
+                                        <polyline points="30,170 120,110 200,30 280,110 370,170" fill="none" stroke="rgba(6,182,212,0.3)" stroke-width="3" />
+                                        <!-- Interactive points -->
+                                        <circle cx="30" cy="170" r="7" class="cursor-pointer fill-cyan-400 hover:fill-white transition-colors" onclick="showPlotInfo('exposition')" />
+                                        <circle cx="120" cy="110" r="7" class="cursor-pointer fill-purple-400 hover:fill-white transition-colors" onclick="showPlotInfo('rising')" />
+                                        <circle cx="200" cy="30" r="9" class="cursor-pointer fill-rose-500 hover:fill-white pulse-dot transition-colors" onclick="showPlotInfo('climax')" />
+                                        <circle cx="280" cy="110" r="7" class="cursor-pointer fill-purple-400 hover:fill-white transition-colors" onclick="showPlotInfo('falling')" />
+                                        <circle cx="370" cy="170" r="7" class="cursor-pointer fill-emerald-400 hover:fill-white transition-colors" onclick="showPlotInfo('resolution')" />
+                                        <!-- Text Labels -->
+                                        <text x="35" y="185" fill="#94A3B8" font-size="8" text-anchor="middle" font-family="Vazirmatn">آغاز</text>
+                                        <text x="110" y="95" fill="#94A3B8" font-size="8" text-anchor="middle" font-family="Vazirmatn">گره‌افکنی</text>
+                                        <text x="200" y="15" fill="#F43F5E" font-size="9" font-weight="bold" text-anchor="middle" font-family="Vazirmatn">نقطه اوج</text>
+                                        <text x="295" y="95" fill="#94A3B8" font-size="8" text-anchor="middle" font-family="Vazirmatn">گره‌گشایی</text>
+                                        <text x="360" y="185" fill="#94A3B8" font-size="8" text-anchor="middle" font-family="Vazirmatn">فرود</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            <!-- Info Box -->
+                            <div class="bg-slate-900/80 p-3 rounded-xl border border-white/5 mt-3 min-h-[70px]">
+                                <h4 id="plotTitle" class="text-xs font-bold text-cyan-400 mb-1">روی یکی از گره‌های هرم دراماتیک کلیک کنید...</h4>
+                                <p id="plotDesc" class="text-[11px] text-slate-300 leading-relaxed">این ابزار ساختار فراز و فرود کشش روایت (Tensile Strength) را با رویکرد ارسطویی تفسیر می‌کند.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 3: ADVANCED DETAILED NARRATIVE CHRONOLOGY (گاه‌شمار پیشرفته رویدادها) -->
+                <div class="glass-panel p-6 rounded-2xl border border-white/5">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-purple-400"></i>
+                                <span>گاه‌شمار روایتی و فیلتر شونده وقایع سرزمین میانه</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">رویدادنگاری حماسه سه‌گانه با امکان فیلترینگ چندبعدی بر اساس کاراکتر یا دوره داستان.</p>
+                        </div>
+                        
+                        <!-- Filter UI -->
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="filterTimeline('all')" id="tlBtn-all" class="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 active-timeline-btn transition-colors">همه رویدادها</button>
+                            <button onclick="filterTimeline('frodo')" id="tlBtn-frodo" class="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 text-slate-400 hover:text-white transition-colors">فرودو و حلقه</button>
+                            <button onclick="filterTimeline('aragorn')" id="tlBtn-aragorn" class="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 text-slate-400 hover:text-white transition-colors">آراگورن و شاهان</button>
+                            <button onclick="filterTimeline('gandalf')" id="tlBtn-gandalf" class="px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 text-slate-400 hover:text-white transition-colors">مکاشفات گاندالف</button>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Flow -->
+                    <div id="timelineContainer" class="relative border-r-2 border-slate-800 mr-4 pr-6 space-y-6">
+                        <!-- Event 1 -->
+                        <div class="timeline-event relative" data-tag="frodo">
+                            <span class="absolute right-[-31px] top-1 w-4 h-4 rounded-full bg-cyan-500 border-4 border-slate-950"></span>
+                            <span class="text-[10px] text-cyan-400 font-mono block mb-1">کتاب اول: یاران حلقه - شایر</span>
+                            <h4 class="text-xs font-bold text-slate-200">کشف هویت واقعی حلقه یگانه</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed mt-1">گاندالف متوجه می‌شود حلقه بیلبو همان حلقه یگانه سائورون است و از فرودو می‌خواهد فوراً شایر را ترک کند.</p>
+                        </div>
+
+                        <!-- Event 2 -->
+                        <div class="timeline-event relative" data-tag="gandalf">
+                            <span class="absolute right-[-31px] top-1 w-4 h-4 rounded-full bg-purple-500 border-4 border-slate-950"></span>
+                            <span class="text-[10px] text-purple-400 font-mono block mb-1">کتاب اول: یاران حلقه - موریا</span>
+                            <h4 class="text-xs font-bold text-slate-200">رویارویی گاندالف با بالروگ و سقوط در سایه</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed mt-1">در دالان‌های مخوف موریا، گاندالف با فدا کردن خود، زمینه نجات فرودو و سایر یاران را فراهم می‌سازد.</p>
+                        </div>
+
+                        <!-- Event 3 -->
+                        <div class="timeline-event relative" data-tag="aragorn">
+                            <span class="absolute right-[-31px] top-1 w-4 h-4 rounded-full bg-amber-500 border-4 border-slate-950"></span>
+                            <span class="text-[10px] text-amber-400 font-mono block mb-1">کتاب دوم: دو برج - روهان</span>
+                            <h4 class="text-xs font-bold text-slate-200">رهبری پیروزمندانه نبرد دژ هلمز دیپ</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed mt-1">آراگورن به همراه لگولاس، گیملی و مردم روهان هجوم ده هزار نفری اوروک-های سارومان را به عقب می‌رانند.</p>
+                        </div>
+
+                        <!-- Event 4 -->
+                        <div class="timeline-event relative" data-tag="frodo">
+                            <span class="absolute right-[-31px] top-1 w-4 h-4 rounded-full bg-cyan-500 border-4 border-slate-950"></span>
+                            <span class="text-[10px] text-cyan-400 font-mono block mb-1">کتاب سوم: بازگشت شاه - موردور</span>
+                            <h4 class="text-xs font-bold text-slate-200">انهدام حلقه و آزادی سرزمین میانه</h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed mt-1">فرودو تحت تاثیر طمع شدید حلقه قرار می‌گیرد، اما با مداخله گولوم حلقه به مواد مذاب پرتاب شده و سائورون متلاشی می‌شود.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 4: Gemini Story Doctor (دستیار زنده تحلیل روایت) -->
+                <div class="glass-panel p-6 rounded-2xl border border-cyan-500/20 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/5 rounded-full filter blur-xl pointer-events-none"></div>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                <span class="text-cyan-400">✨</span>
+                                <span>دستیار نقد و درمانگاه سناریو (Story Doctor)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-1">یک سکانس، دیالوگ یا خلاصه داستان بنویسید تا مدل هوش مصنوعی Gemini آن را نقد کرده و بازنویسی کند.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-purple-300 bg-purple-950/60 px-2 py-1 rounded border border-purple-500/20 font-mono">Gemini-2.5-Flash</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <textarea id="storyInput" rows="5" class="w-full bg-slate-900/80 border border-white/10 rounded-xl p-4 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400/50 transition-colors" placeholder="مثال: فرودو در دهانه کوه نابودی شمشیرش را غلاف کرده و خیره به حلقه تیره رنگ می‌نگرد. سام فریاد می‌زند: «آن را بنداز فرودو!» اما فرودو سر تکان می‌دهد و می‌گوید: «حلقه مال منه...»"></textarea>
+                            <button onclick="runStoryDoctor()" id="btnStoryDoctor" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/10 hover:opacity-90 transition-all">
+                                <span>✨ تحلیل اسطوره‌ای و بازنویسی سناریو</span>
+                            </button>
+                        </div>
+                        <div class="bg-slate-900/40 border border-white/5 rounded-xl p-4 min-h-[140px] flex flex-col justify-between">
+                            <div class="text-xs text-slate-400 font-semibold mb-2 flex items-center gap-2 border-b border-white/5 pb-2">
+                                <i class="fa-solid fa-square-poll-vertical text-purple-400"></i>
+                                <span>خروجی بررسی روایت و بازنویسی زنده:</span>
+                            </div>
+                            <div id="storyDoctorOutput" class="text-xs text-slate-300 leading-relaxed overflow-y-auto max-h-[160px] whitespace-pre-line font-mono">
+                                ایده یا سکانس خود را در بخش چپ بنویسید و دکمه را فشار دهید تا موتور هوش مصنوعی دست به کار شود.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 5: Character Network & Similarity & Matrix (3-Column Layout) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Interactive Canvas-Based Character Map with filters -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                                    <i class="fa-solid fa-circle-nodes text-cyan-400"></i>
+                                    <span>شبکه تعاملی روابط و اهمیت کاراکترها (ارباب حلقه‌ها)</span>
+                                </h3>
+                                <span class="text-xs text-slate-400">گره‌ها قابل حرکت هستند. بر اساس اهمیت فیلتر کنید.</span>
+                            </div>
+                            <button onclick="resetGraph()" class="text-xs text-cyan-400 bg-cyan-950/40 border border-cyan-500/20 px-3 py-1.5 rounded-lg hover:bg-cyan-900/50">
+                                بازنشانی گراف
+                            </button>
+                        </div>
+
+                        <!-- Story Character Filters -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                            <div>
+                                <label class="block text-slate-400 text-[10px] mb-1">فیلتر نوع رابطه:</label>
+                                <select id="relationTypeFilter" onchange="applyFilters()" class="w-full bg-slate-950 text-xs text-slate-200 border border-white/10 rounded px-2.5 py-1.5 focus:outline-none focus:border-cyan-500">
+                                    <option value="all">همه روابط</option>
+                                    <option value="وفاداری">وفاداری و دوستی حماسی</option>
+                                    <option value="مربی">مربی و راهنما</option>
+                                    <option value="تقابل">تقابل و خصومت</option>
+                                    <option value="وسوسه">وسوسه و طمع حلقه</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-[10px] mb-1">حداقل عمق/وزن رابطه: <span id="weightVal" class="text-cyan-400">1</span></label>
+                                <input type="range" id="relationWeightFilter" min="1" max="5" step="0.5" value="1" oninput="updateWeightFilter(this.value)" class="w-full accent-cyan-500 h-1 bg-slate-950 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+
+                        <!-- Canvas area -->
+                        <div class="relative w-full bg-slate-950/70 border border-white/5 rounded-xl overflow-hidden h-80">
+                            <canvas id="characterMapCanvas" class="w-full h-full cursor-pointer"></canvas>
+                            <div class="absolute bottom-3 right-3 bg-slate-900/90 border border-white/10 p-2.5 rounded-lg text-[10px] space-y-1">
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 block"></span><span>فرودو (حامل حلقه) - ۹.۸</span></div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-purple-400 block"></span><span>گاندالف (مربی خردمند) - ۹.۲</span></div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-400 block"></span><span>سائورون (آنتاگونیست) - ۹.۵</span></div>
+                                <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-amber-400 block"></span><span>سام (یار وفادار) - ۸.۸</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar: Matrix & AI Similarity Detector -->
+                    <div class="space-y-6">
+                        <!-- Emotional Intensity Matrix -->
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <h3 class="text-base font-bold text-slate-100 mb-4 flex items-center gap-2">
+                                <i class="fa-solid fa-heart-pulse text-rose-400"></i>
+                                <span>ماتریس تراز احساسی داستان</span>
+                            </h3>
+                            <div class="space-y-3">
+                                <!-- Relationship 1 -->
+                                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="text-slate-300">فرودو <i class="fa-solid fa-left-right text-cyan-400 mx-1"></i> گولوم</span>
+                                        <span class="text-rose-400 font-bold">وسوسه و نفرت متقابل (۹۵٪)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-red-500 to-rose-400 h-full" style="width: 95%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Relationship 2 -->
+                                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/5">
+                                    <div class="flex justify-between text-[11px] mb-1">
+                                        <span class="text-slate-300">فرودو <i class="fa-solid fa-left-right text-cyan-400 mx-1"></i> سام وایز</span>
+                                        <span class="text-cyan-400 font-bold">پیوند وفاداری نفوذناپذیر (۹۹٪)</span>
+                                    </div>
+                                    <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full" style="width: 99%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Similarity Detector (Kept & Relocated here for compact design) -->
+                        <div class="glass-panel p-6 rounded-2xl">
+                            <h3 class="text-base font-bold text-slate-100 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-clone text-purple-400"></i>
+                                <span>تحلیل شباهت‌یاب هوشمند (AI Similarity)</span>
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mb-4">این حماسه از منظر تِم، پلات و فانتزی عمیق به آثار زیر بیشترین شباهت ساختاری را دارد:</p>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-white/5 hover:border-purple-500/30 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs">🎬</span>
+                                        <div>
+                                            <h4 class="text-[11px] font-bold text-slate-200">هابیت (The Hobbit)</h4>
+                                            <span class="text-[9px] text-slate-500">جکسون / ۲۰۱۲</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-cyan-400 bg-cyan-950/50 px-2 py-0.5 rounded border border-cyan-500/30">۹۲٪ شباهت جهان</span>
+                                </div>
+
+                                <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-900/60 border border-white/5 hover:border-purple-500/30 transition-all">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs">🎬</span>
+                                        <div>
+                                            <h4 class="text-[11px] font-bold text-slate-200">نبرد تاج و تخت (GoT)</h4>
+                                            <span class="text-[9px] text-slate-500">اچ‌بی‌او / ۲۰۱۱</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-purple-400 bg-purple-950/50 px-2 py-0.5 rounded border border-purple-500/30">۸۱٪ اسطوره‌ای</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ROW 6: Deep Story Analysis & Theories comparison (3-Card academic layout) -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Theory Comparison 1 -->
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <span class="text-cyan-400 font-mono text-[10px] block mb-1">THEORY ANALYSIS #1</span>
+                        <h4 class="text-base font-bold text-slate-100 mb-3">ساختار سه‌پرده‌ای کلاسیک</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">فیلمنامه با ساختار استاندارد سید فیلد همپوشانی دارد. گره‌افکنی ابتدایی با به ارث رسیدن حلقه به فرودو رقم می‌خورد که نرخ درگیری مخاطب را به سرعت افزایش می‌دهد. پرده دوم با موازی‌سازی جبهه جنگ و حاملان حلقه، کشش دراماتیک را تا نقطه اوج متصل نگه می‌دارد.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-400">سازگاری با ساختار هالیوودی</span>
+                            <span class="text-xs text-emerald-400 font-bold">بسیار بالا (۹۲٪)</span>
+                        </div>
+                    </div>
+
+                    <!-- Theory Comparison 2 -->
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <span class="text-purple-400 font-mono text-[10px] block mb-1">THEORY ANALYSIS #2</span>
+                        <h4 class="text-base font-bold text-slate-100 mb-3">روان‌شناسی کهن‌الگوهای یونگ</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">کاراکتر فرودو به درستی مسیر و آزمون‌های سخت «قهرمان» را طی می‌کند، گاندالف تجلی کامل کهن‌الگوی «پیر خردمند» است و تقابل با سائورون و وسوسه مداوم حلقه یگانه نمایانگر چالش درونی انسان با بخش «سایه» روان خودش است.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-400">عمق روانشناختی کاراکترها</span>
+                            <span class="text-xs text-purple-400 font-bold">عالی (۹۵٪)</span>
+                        </div>
+                    </div>
+
+                    <!-- Theory Comparison 3 -->
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <span class="text-amber-400 font-mono text-[10px] block mb-1">THEORY ANALYSIS #3</span>
+                        <h4 class="text-base font-bold text-slate-100 mb-3">کشش روایتی و هیجان مخاطب</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">الگوریتم‌های ما پیش‌بینی می‌کنند که جابجایی هوشمندانه تمرکز بین خطوط داستانی مختلف (سام و فرودو در کنار آراگورن در جبهه جنگ) از خستگی ذهن مخاطبان در طول مدت طولانی اثر جلوگیری می‌کند و ریتم درگیرکننده‌ای پدید می‌آورد.</p>
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-white/5 flex items-center justify-between">
+                            <span class="text-xs text-slate-400">تخمین رضایت تماشاگر نهایی</span>
+                            <span class="text-xs text-amber-400 font-bold">۹۶٪ مخاطب‌پسند</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- CINEMATIC PORTFOLIO SHOWCASE -->
+    <section id="showcase" class="relative z-10 py-24 px-6 md:px-12 max-w-7xl mx-auto border-t border-white/5">
+        <div class="text-center mb-16">
+            <span class="text-cyan-400 font-bold text-xs uppercase tracking-widest block mb-2">داستان‌های طلایی تحلیل شده</span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white">الگوبرداری از شاهکارهای تاریخ</h2>
+            <p class="text-slate-400 max-w-xl mx-auto mt-4 text-sm leading-relaxed">چگونه هوش مصنوعی ما به بهینه‌سازی فرمول آثار بزرگ جهانی کمک کرده است.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Showcase 1 -->
+            <div class="glass-panel rounded-2xl overflow-hidden relative group">
+                <div class="h-48 bg-slate-900 relative flex items-center justify-center text-5xl">
+                    🌌
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] text-cyan-400 font-mono">ANIME ANALYSIS</span>
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-star text-amber-400"></i> ۴.۹</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100 mb-2">حماسه ستاره فراموش شده</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">تحلیل الگوهای چندگانه قهرمانان با بازده سرمایه‌گذاری ۶۰۰ درصدی در بازارهای بین‌المللی.</p>
+                    <button onclick="scrollToElement('dashboard')" class="text-xs text-cyan-400 flex items-center gap-2 hover:underline">
+                        <span>مشاهده تحلیل کامل ساختار</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Showcase 2 -->
+            <div class="glass-panel rounded-2xl overflow-hidden relative group">
+                <div class="h-48 bg-slate-900 relative flex items-center justify-center text-5xl">
+                    ⏳
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] text-purple-400 font-mono">SCI-FI SERIES</span>
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-star text-amber-400"></i> ۴.۷</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100 mb-2">پارادوکس زمان</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">بازنویسی گره‌های فیلمنامه پرده سوم بر اساس داده‌های تحلیلی هوش مصنوعی جهت جلب رضایت حداکثری.</p>
+                    <button onclick="scrollToElement('dashboard')" class="text-xs text-cyan-400 flex items-center gap-2 hover:underline">
+                        <span>مشاهده تحلیل کامل ساختار</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Showcase 3 -->
+            <div class="glass-panel rounded-2xl overflow-hidden relative group">
+                <div class="h-48 bg-slate-900 relative flex items-center justify-center text-5xl">
+                    🐉
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-[10px] text-amber-400 font-mono">FANTASY FRANCHISE</span>
+                        <span class="text-xs text-slate-400"><i class="fa-solid fa-star text-amber-400"></i> ۴.۸</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-100 mb-2">میراث جاودانگی</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed mb-4">طراحی زنجیره مرچندایز و پتانسیل فروش فیگورهای سه بعدی بر اساس تحلیل جذابیت روانی شخصیت‌ها.</p>
+                    <button onclick="scrollToElement('dashboard')" class="text-xs text-cyan-400 flex items-center gap-2 hover:underline">
+                        <span>مشاهده تحلیل کامل ساختار</span>
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FUTURISTIC FOOTER -->
+    <footer class="relative z-10 bg-slate-950 border-t border-white/5 py-16 px-6 md:px-12 text-slate-400">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center text-white font-black text-sm shadow-lg glow-cyan">
+                        S
+                    </div>
+                    <span class="text-lg font-bold text-white">SagaAnalytics</span>
+                </div>
+                <p class="text-xs leading-relaxed">
+                    سیستم پیشرفته تحلیل فیلمنامه و ارزیابی ریسک برای تهیه‌کنندگان، استودیوها و توسعه‌دهندگان بازی‌های ویدیویی سراسر جهان.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-4">بخش‌های اصلی</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#hero" class="hover:text-cyan-400 transition-colors">خانه</a></li>
+                    <li><a href="#features" class="hover:text-cyan-400 transition-colors">ویژگی‌های هوش مصنوعی</a></li>
+                    <li><a href="#dashboard" class="hover:text-cyan-400 transition-colors">داشبورد زنده</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-4">تحلیل و روایت‌شناسی</h4>
+                <ul class="space-y-2 text-xs">
+                    <li><a href="#" class="hover:text-cyan-400 transition-colors">سفر قهرمان (جوزف کمبل)</a></li>
+                    <li><a href="#" class="hover:text-cyan-400 transition-colors">مدل سه‌پرده‌ای هالیوود</a></li>
+                    <li><a href="#" class="hover:text-cyan-400 transition-colors">شبیه‌سازی تم و روابط</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-sm font-bold text-white mb-4">خبرنامه استارتاپ</h4>
+                <p class="text-xs mb-4">برای دریافت جدیدترین گزارش‌های تحلیل بازار به صورت هوشمند عضو شوید.</p>
+                <div class="flex rounded-lg overflow-hidden border border-white/10 bg-slate-900">
+                    <input type="email" placeholder="ایمیل شما" class="bg-transparent px-3 py-2 text-xs focus:outline-none w-full text-slate-200">
+                    <button class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 px-4 text-xs font-bold">عضویت</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
+            <p>© ۲۰۲۶ ساگا آنالیتیکس. کلیه حقوق محفوظ است. توسعه یافته برای ارائه به سرمایه‌گذاران استارتاپی.</p>
+            <div class="flex gap-4 text-slate-500">
+                <a href="#" class="hover:text-white"><i class="fa-brands fa-linkedin text-lg"></i></a>
+                <a href="#" class="hover:text-white"><i class="fa-brands fa-github text-lg"></i></a>
+                <a href="#" class="hover:text-white"><i class="fa-brands fa-twitter text-lg"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE DEMO UPLOAD MODAL -->
+    <div id="uploadModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+        <div class="glass-panel p-8 rounded-3xl max-w-lg w-full relative animate-fadeIn">
+            <button onclick="closeDemoUploadModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-xl font-bold text-white mb-2">بارگذاری فیلمنامه جدید برای تحلیل هوشمند</h3>
+            <p class="text-xs text-slate-400 mb-6">فایل سناریو یا رمان خود را آپلود کنید تا موتور هوش مصنوعی پردازش را آغاز کند.</p>
+
+            <div class="border-2 border-dashed border-cyan-500/30 hover:border-cyan-400/70 rounded-2xl p-8 text-center cursor-pointer transition-colors bg-slate-900/40 mb-6" onclick="triggerFileSelect()">
+                <input type="file" id="fileInput" class="hidden" onchange="handleFileSelect()">
+                <i class="fa-solid fa-cloud-arrow-up text-4xl text-cyan-400 mb-4 animate-bounce"></i>
+                <p class="text-sm text-slate-200 font-bold mb-1">فایل خود را به اینجا بکشید یا کلیک کنید</p>
+                <p class="text-[10px] text-slate-500">فرمت‌های قابل پشتیبانی: PDF, TXT, DOCX (حداکثر ۲۰ مگابایت)</p>
+            </div>
+
+            <!-- Upload progress visual mockup -->
+            <div id="uploadProgress" class="hidden">
+                <div class="flex justify-between text-xs text-slate-300 mb-2">
+                    <span>در حال اسکن عمیق روابط کاراکترها و کشش روایت...</span>
+                    <span id="percentLabel">0%</span>
+                </div>
+                <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden">
+                    <div id="progressBar" class="bg-cyan-500 h-full w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="closeDemoUploadModal()" class="px-5 py-2.5 rounded-xl text-xs text-slate-300 hover:bg-white/5">انصراف</button>
+                <button onclick="simulateAILoading()" class="px-5 py-2.5 rounded-xl text-xs bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>شروع پردازش هوشمند</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN JAVASCRIPT LOGIC -->
+    <script>
+        const canvas = document.getElementById('stars-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let stars = [];
+        const numStars = 100;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    opacity: Math.random(),
+                    speed: 0.05 + Math.random() * 0.05
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < numStars; i++) {
+                let s = stars[i];
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${s.opacity})`;
+                ctx.fill();
+
+                s.opacity += s.speed;
+                if (s.opacity > 1 || s.opacity < 0.2) {
+                    s.speed = -s.speed;
+                }
+            }
+            requestAnimationFrame(animateStars);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.onload = function() {
+            resizeCanvas();
+            animateStars();
+            initCharts();
+            initCharacterMap();
+            initStorylineCanvas();
+        }
+
+        function scrollToElement(id) {
+            const el = document.getElementById(id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        let radarChartInstance = null;
+
+        function initCharts() {
+            const radarCtx = document.getElementById('academicRadarChart').getContext('2d');
+            radarChartInstance = new Chart(radarCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['ساختار حماسه اسطوره‌ای', 'سفر قهرمان (جوزف کمبل)', 'عمق و بافت کاراکترها', 'ریتم و ضرب‌آهنگ سه‌گانه', 'خلاقیت روایی تالکین', 'کشش احساسی مخاطب'],
+                    datasets: [{
+                        label: 'ارباب حلقه‌ها (سه گانه فعال)',
+                        data: [98, 97, 95, 88, 99, 96],
+                        fill: true,
+                        backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                        borderColor: '#06B6D4',
+                        pointBackgroundColor: '#06B6D4',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#06B6D4'
+                    }, {
+                        label: 'میانگین ۵۰۰۰ اثر موفق جهان',
+                        data: [75, 70, 78, 72, 80, 75],
+                        fill: true,
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderColor: '#8B5CF6',
+                        pointBackgroundColor: '#8B5CF6',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#8B5CF6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            pointLabels: { color: '#94A3B8', font: { family: 'Vazirmatn', size: 10 } },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#E2E8F0',
+                                font: { family: 'Vazirmatn', size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        const charCanvas = document.getElementById('characterMapCanvas');
+        const charCtx = charCanvas.getContext('2d');
+
+        let allNodes = [];
+        let allLinks = [];
+        let filteredNodes = [];
+        let filteredLinks = [];
+        let selectedNode = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        function initCharacterMap() {
+            const width = charCanvas.parentElement.clientWidth;
+            const height = charCanvas.parentElement.clientHeight;
+            charCanvas.width = width;
+            charCanvas.height = height;
+
+            // Generate Lord of the Rings Nodes
+            allNodes = [
+                { id: 'فرودو', name: 'فرودو بگینز', role: 'حامل حلقه یگانه', importance: 9.8, x: width * 0.5, y: height * 0.5, radius: 24, color: '#06B6D4' },
+                { id: 'گاندالف', name: 'گاندالف', role: 'جادوگر و مربی', importance: 9.2, x: width * 0.25, y: height * 0.3, radius: 22, color: '#8B5CF6' },
+                { id: 'سائورون', name: 'سائورون', role: 'ارباب تاریکی', importance: 9.5, x: width * 0.75, y: height * 0.4, radius: 25, color: '#F43F5E' },
+                { id: 'سام', name: 'سام‌وایز گمجی', role: 'همراه باوفا', importance: 8.8, x: width * 0.4, y: height * 0.8, radius: 18, color: '#D4AF37' },
+                { id: 'آراگورن', name: 'آراگورن', role: 'وارث تاج و تخت', importance: 9.4, x: width * 0.6, y: height * 0.75, radius: 22, color: '#10B981' },
+                { id: 'گولوم', name: 'گولوم', role: 'راهنمای وسوسه‌انگیز', importance: 8.5, x: width * 0.8, y: height * 0.8, radius: 16, color: '#EC4899' }
+            ];
+
+            // LOTR Connections
+            allLinks = [
+                { source: 'فرودو', target: 'سام', weight: 5, type: 'وفاداری' },
+                { source: 'فرودو', target: 'گاندالف', weight: 4, type: 'مربی' },
+                { source: 'فرودو', target: 'گولوم', weight: 3.5, type: 'وسوسه' },
+                { source: 'فرودو', target: 'سائورون', weight: 4.5, type: 'تقابل' },
+                { source: 'آراگورن', target: 'سائورون', weight: 5, type: 'تقابل' },
+                { source: 'آراگورن', target: 'گاندالف', weight: 3, type: 'وفاداری' },
+                { source: 'سام', target: 'گولوم', weight: 2.5, type: 'تقابل' }
+            ];
+
+            applyFilters();
+        }
+
+        function updateWeightFilter(val) {
+            document.getElementById('weightVal').innerText = val;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const relType = document.getElementById('relationTypeFilter').value;
+            const minWeight = parseFloat(document.getElementById('relationWeightFilter').value);
+
+            // Filter links first
+            filteredLinks = allLinks.filter(link => {
+                const matchesType = (relType === 'all' || link.type === relType);
+                const matchesWeight = link.weight >= minWeight;
+                return matchesType && matchesWeight;
+            });
+
+            // Filter nodes based on active links
+            const activeNodeIds = new Set();
+            filteredLinks.forEach(link => {
+                activeNodeIds.add(link.source);
+                activeNodeIds.add(link.target);
+            });
+
+            if (activeNodeIds.size === 0) {
+                filteredNodes = [];
+            } else {
+                filteredNodes = allNodes.filter(node => activeNodeIds.has(node.id));
+            }
+
+            drawGraph();
+        }
+
+        function drawGraph() {
+            charCtx.clearRect(0, 0, charCanvas.width, charCanvas.height);
+
+            if (filteredNodes.length === 0) {
+                charCtx.fillStyle = '#64748B';
+                charCtx.font = '12px Vazirmatn';
+                charCtx.textAlign = 'center';
+                charCtx.fillText('هیچ گرهی با این شرایط فیلتر همخوانی ندارد.', charCanvas.width / 2, charCanvas.height / 2);
+                return;
+            }
+
+            // Draw Connection Lines
+            filteredLinks.forEach(link => {
+                const srcNode = filteredNodes.find(n => n.id === link.source);
+                const tgtNode = filteredNodes.find(n => n.id === link.target);
+
+                if (srcNode && tgtNode) {
+                    charCtx.beginPath();
+                    charCtx.moveTo(srcNode.x, srcNode.y);
+                    charCtx.lineTo(tgtNode.x, tgtNode.y);
+                    charCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                    charCtx.lineWidth = link.weight * 1.5;
+                    charCtx.stroke();
+
+                    // Connection label
+                    const midX = (srcNode.x + tgtNode.x) / 2;
+                    const midY = (srcNode.y + tgtNode.y) / 2;
+                    charCtx.fillStyle = '#06B6D4';
+                    charCtx.font = '9px Vazirmatn';
+                    charCtx.textAlign = 'center';
+                    charCtx.fillText(`${link.type} (${link.weight})`, midX, midY - 6);
+                }
+            });
+
+            // Draw Nodes
+            filteredNodes.forEach(node => {
+                charCtx.beginPath();
+                charCtx.arc(node.x, node.y, node.radius + 6, 0, Math.PI * 2);
+                charCtx.fillStyle = `${node.color}15`;
+                charCtx.fill();
+
+                charCtx.beginPath();
+                charCtx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+                charCtx.fillStyle = node.color;
+                charCtx.fill();
+
+                charCtx.fillStyle = '#FFFFFF';
+                charCtx.font = 'bold 10px Vazirmatn';
+                charCtx.textAlign = 'center';
+                charCtx.fillText(node.id, node.x, node.y + 4);
+
+                charCtx.fillStyle = '#94A3B8';
+                charCtx.font = '8px Vazirmatn';
+                charCtx.fillText(`${node.role}`, node.x, node.y + node.radius + 14);
+            });
+        }
+
+        function resetGraph() {
+            initCharacterMap();
+        }
+
+        // Node Mouse Interaction Events
+        charCanvas.addEventListener('mousedown', function(e) {
+            const rect = charCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            filteredNodes.forEach(node => {
+                const dist = Math.hypot(node.x - mouseX, node.y - mouseY);
+                if (dist < node.radius + 6) {
+                    selectedNode = node;
+                    isDragging = true;
+                    dragOffset.x = mouseX - node.x;
+                    dragOffset.y = mouseY - node.y;
+                }
+            });
+        });
+
+        charCanvas.addEventListener('mousemove', function(e) {
+            const rect = charCanvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (isDragging && selectedNode) {
+                selectedNode.x = mouseX - dragOffset.x;
+                selectedNode.y = mouseY - dragOffset.y;
+                drawGraph();
+            } else {
+                let hoverNode = false;
+                filteredNodes.forEach(node => {
+                    const dist = Math.hypot(node.x - mouseX, node.y - mouseY);
+                    if (dist < node.radius + 6) {
+                        hoverNode = true;
+                    }
+                });
+                charCanvas.style.cursor = hoverNode ? 'pointer' : 'default';
+            }
+        });
+
+        charCanvas.addEventListener('mouseup', function() {
+            isDragging = false;
+            selectedNode = null;
+        });
+
+        // Add Touch Support for mobile dragging
+        charCanvas.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                const rect = charCanvas.getBoundingClientRect();
+                const mouseX = e.touches[0].clientX - rect.left;
+                const mouseY = e.touches[0].clientY - rect.top;
+
+                filteredNodes.forEach(node => {
+                    const dist = Math.hypot(node.x - mouseX, node.y - mouseY);
+                    if (dist < node.radius + 6) {
+                        selectedNode = node;
+                        isDragging = true;
+                        dragOffset.x = mouseX - node.x;
+                        dragOffset.y = mouseY - node.y;
+                    }
+                });
+            }
+        });
+
+        charCanvas.addEventListener('touchmove', function(e) {
+            if (isDragging && selectedNode && e.touches.length === 1) {
+                const rect = charCanvas.getBoundingClientRect();
+                const mouseX = e.touches[0].clientX - rect.left;
+                const mouseY = e.touches[0].clientY - rect.top;
+                selectedNode.x = mouseX - dragOffset.x;
+                selectedNode.y = mouseY - dragOffset.y;
+                drawGraph();
+                e.preventDefault();
+            }
+        });
+
+        charCanvas.addEventListener('touchend', function() {
+            isDragging = false;
+            selectedNode = null;
+        });
+
+        function filterTimeline(tag) {
+            // Update buttons
+            document.querySelectorAll('button[id^="tlBtn-"]').forEach(btn => {
+                btn.className = "px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 text-slate-400 hover:text-white transition-colors";
+            });
+            document.getElementById(`tlBtn-${tag}`).className = "px-3 py-1.5 rounded-lg text-[10px] font-bold border border-white/10 active-timeline-btn transition-colors";
+
+            // Filter chronological events
+            const events = document.querySelectorAll('.timeline-event');
+            events.forEach(ev => {
+                if (tag === 'all' || ev.getAttribute('data-tag') === tag) {
+                    ev.style.display = 'block';
+                } else {
+                    ev.style.display = 'none';
+                }
+            });
+        }
+
+        const plotData = {
+            exposition: {
+                title: "آغاز قصه (Exposition) - دهکده شایر",
+                desc: "معرفی فرودو بگینز، بیلبو و دنیای دنج و آرام شایر. بیلبو در جشن تولد ۱۱۱ سالگی خود ناپدید می‌شود و حلقه را به فرودو می‌سپارد. صلح اولیه معرفی می‌گردد."
+            },
+            rising: {
+                title: "صعود و گره‌افکنی (Rising Action) - شورای الروند",
+                desc: "فرودو شایر را ترک کرده و در ریوندل شورای الروند تشکیل می‌شود. نه نفر به عنوان یاران حلقه برای نجات سرزمین میانه هم‌پیمان می‌شوند تا به سمت کوه نابودی حرکت کنند."
+            },
+            climax: {
+                title: "نقطه اوج دراماتیک (Dramatic Climax) - نبرد کوه نابودی",
+                desc: "آراگورن دروازه‌های سیاه را به چالش می‌کشد تا نگاه سائورون منحرف شود. فرودو در کنار سام در لبه آتشگاه با گولوم به جدال برمی‌خیزد و نهایتاً حلقه در آتش نابود می‌گردد."
+            },
+            falling: {
+                title: "گره‌گشایی و فرود (Falling Action) - سقوط باراد-دور",
+                desc: "چشم سائورون فرو می‌ریزد، کوه نابودی متلاشی می‌شود و یاران حلقه توسط عقاب‌های بزرگ نجات می‌یابند. ارتش‌های تاریکی تسلیم می‌شوند."
+            },
+            resolution: {
+                title: "عاقبت و پایان کار (Resolution) - بندرگاه خاکستری",
+                desc: "آراگورن به عنوان پادشاه گوندور تاج‌گذاری می‌کند. فرودو به همراه گاندالف و الف‌ها، به خاطر زخم‌های روحی و جسمی عمیق، سرزمین میانه را به مقصد بندرگاه خاکستری ترک می‌کند."
+            }
+        };
+
+        function showPlotInfo(point) {
+            const data = plotData[point];
+            document.getElementById('plotTitle').innerText = data.title;
+            document.getElementById('plotDesc').innerText = data.desc;
+        }
+
+        function initStorylineCanvas() {
+            const sc = document.getElementById('storylineCanvas');
+            const sCtx = sc.getContext('2d');
+            sc.width = sc.parentElement.clientWidth;
+            sc.height = sc.parentElement.clientHeight;
+
+            sCtx.clearRect(0, 0, sc.width, sc.height);
+
+            const w = sc.width;
+            const h = sc.height;
+
+            const stages = [
+                { name: 'شایر', x: w * 0.1 },
+                { name: 'ریوندل', x: w * 0.3 },
+                { name: 'موریا', x: w * 0.5 },
+                { name: 'پارث‌گالن', x: w * 0.7 },
+                { name: 'موردور / گوندور', x: w * 0.9 }
+            ];
+
+            stages.forEach(st => {
+                sCtx.beginPath();
+                sCtx.moveTo(st.x, 20);
+                sCtx.lineTo(st.x, h - 20);
+                sCtx.strokeStyle = 'rgba(255,255,255,0.03)';
+                sCtx.lineWidth = 2;
+                sCtx.stroke();
+
+                sCtx.fillStyle = 'rgba(255,255,255,0.4)';
+                sCtx.font = '9px Vazirmatn';
+                sCtx.textAlign = 'center';
+                sCtx.fillText(st.name, st.x, 15);
+            });
+
+            const chars = [
+                { name: 'فرودو', color: '#06B6D4', points: [ {x: w*0.1, y: h*0.3}, {x: w*0.3, y: h*0.4}, {x: w*0.5, y: h*0.45}, {x: w*0.7, y: h*0.3}, {x: w*0.9, y: h*0.25} ] },
+                { name: 'سام', color: '#D4AF37', points: [ {x: w*0.1, y: h*0.35}, {x: w*0.3, y: h*0.42}, {x: w*0.5, y: h*0.47}, {x: w*0.7, y: h*0.35}, {x: w*0.9, y: h*0.28} ] },
+                { name: 'آراگورن', color: '#10B981', points: [ {x: w*0.1, y: h*0.7}, {x: w*0.3, y: h*0.48}, {x: w*0.5, y: h*0.51}, {x: w*0.7, y: h*0.65}, {x: w*0.9, y: h*0.75} ] },
+                { name: 'گاندالف', color: '#8B5CF6', points: [ {x: w*0.15, y: h*0.2}, {x: w*0.3, y: h*0.35}, {x: w*0.5, y: h*0.55}, {x: w*0.7, y: h*0.5}, {x: w*0.9, y: h*0.55} ] }
+            ];
+
+            chars.forEach(ch => {
+                sCtx.beginPath();
+                sCtx.moveTo(ch.points[0].x, ch.points[0].y);
+                for(let i = 1; i < ch.points.length; i++) {
+                    sCtx.lineTo(ch.points[i].x, ch.points[i].y);
+                }
+                sCtx.strokeStyle = ch.color;
+                sCtx.lineWidth = 3;
+                sCtx.stroke();
+
+                const lastPt = ch.points[ch.points.length - 1];
+                sCtx.fillStyle = ch.color;
+                sCtx.font = 'bold 8px Vazirmatn';
+                sCtx.textAlign = 'right';
+                sCtx.fillText(ch.name, lastPt.x - 5, lastPt.y - 5);
+            });
+        }
+
+        function openDemoUploadModal() {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        }
+
+        function closeDemoUploadModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('uploadProgress').classList.add('hidden');
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('percentLabel').innerText = '0%';
+        }
+
+        function triggerFileSelect() {
+            document.getElementById('fileInput').click();
+        }
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                simulateAILoading();
+            }
+        }
+
+        function simulateAILoading() {
+            const progressSection = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const percentLabel = document.getElementById('percentLabel');
+
+            progressSection.classList.remove('hidden');
+
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        closeDemoUploadModal();
+                        scrollToElement('dashboard');
+                        showProcessingNotification();
+                    }, 500);
+                }
+                progressBar.style.width = `${progress}%`;
+                percentLabel.innerText = `${progress}%`;
+            }, 200);
+        }
+
+        function showProcessingNotification() {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 left-5 z-50 glass-panel border border-cyan-500/50 p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-2xl shadow-cyan-500/15";
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-cyan-950 flex items-center justify-center text-cyan-400">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-white">پایان تحلیل موفق هوش مصنوعی!</h4>
+                    <p class="text-[10px] text-slate-400">تغییرات با فرضیات جدید در میز کار اعمال شد.</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 4000);
+        }
+
+        // ==========================================
+        // GEMINI API INTEGRATIONS & SERVICE CALLS
+        // ==========================================
+        const apiKey = ""; 
+
+        async function callGemini(prompt, systemPrompt = "") {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }]
+            };
+            if (systemPrompt) {
+                payload.systemInstruction = { parts: [{ text: systemPrompt }] };
+            }
+
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    const result = await response.json();
+                    return result.candidates?.[0]?.content?.parts?.[0]?.text;
+                } catch (error) {
+                    if (i === 4) throw error;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+        }
+
+        async function runStoryDoctor() {
+            const storyInput = document.getElementById('storyInput').value.trim();
+            const outputBox = document.getElementById('storyDoctorOutput');
+            const btn = document.getElementById('btnStoryDoctor');
+
+            if (!storyInput) {
+                showToastNotification("خطا", "لطفاً ابتدا متنی برای سناریو یا خلاصه داستان بنویسید.", "fa-triangle-exclamation", "border-rose-500/50");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<span><i class="fa-solid fa-spinner animate-spin"></i> در حال درمان سناریو...</span>`;
+            outputBox.innerText = "هوش مصنوعی Gemini در حال اسکن روایت، تحلیل روانشناختی کهن‌الگوها و بازنویسی صحنه است...";
+
+            const systemPrompt = `تو یک روایت‌شناس برجسته، متخصص ساختار سه‌پرده‌ای سید فیلد، الگوهای کهن‌الگویی کارل یونگ و بازنویس خلاق سناریوهای تراز اول جهانی هستی. جواب را کوتاه و ساختاریافته به زبان فارسی ارائه بده. ساختار خروجی باید شامل ۳ بخش باشد:
+1. تحلیل اسطوره‌ای و روایت‌شناسی ارباب حلقه‌ها (نقد پیرنگ)
+2. تحلیل احساسی کاراکترها
+3. نسخه بازنویسی‌شده حماسی و سینمایی صحنه`;
+
+            try {
+                const result = await callGemini(storyInput, systemPrompt);
+                outputBox.innerText = result || "پاسخی از هوش مصنوعی دریافت نشد.";
+                showToastNotification("موفقیت", "سناریوی شما با هوش مصنوعی بازنویسی و تحلیل شد!", "fa-circle-check", "border-cyan-500/50");
+            } catch (err) {
+                outputBox.innerText = `خطا در برقراری ارتباط با هوش مصنوعی. لطفاً مجدداً تلاش کنید.\nتوضیح خطا: ${err.message}`;
+                showToastNotification("خطا در شبکه", "ارتباط با Gemini برقرار نشد. در حال تلاش مجدد...", "fa-triangle-exclamation", "border-rose-500/50");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<span>✨ تحلیل اسطوره‌ای و بازنویسی سناریو</span>`;
+            }
+        }
+
+        function showToastNotification(title, message, iconClass, borderStyle) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 left-5 z-50 glass-panel border ${borderStyle} p-4 rounded-2xl flex items-center gap-3 animate-bounce shadow-2xl`;
+            toast.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-slate-950 flex items-center justify-center text-cyan-400">
+                    <i class="fa-solid ${iconClass}"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-white">${title}</h4>
+                    <p class="text-[10px] text-slate-400">${message}</p>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
